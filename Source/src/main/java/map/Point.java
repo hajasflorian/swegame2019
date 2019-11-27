@@ -2,6 +2,7 @@ package map;
 
 import java.util.Random;
 
+
 public class Point {
 	
 	private int x;
@@ -21,6 +22,10 @@ public class Point {
 		int randomY = new Random().nextInt(4);
 		
 		return new Point(randomX, randomY);
+	}
+	
+	public Point getPoint(int x, int y) {
+		return new Point(x,y);
 	}
 	
 	public int getX() {

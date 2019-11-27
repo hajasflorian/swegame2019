@@ -2,60 +2,75 @@ package map;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 
 public class MapGenerator {
 
-	private HashMap<Point, TerrainType> map = new HashMap<Point, TerrainType>();
-	private Point point = new Point();
+	private HashMap<Point, TerrainType> map;
+	private Point point;
+	
+	public MapGenerator() {
+		this.point = new Point();
+		this.map = new HashMap<Point, TerrainType>();
+	}
 
 	public HashMap<Point, TerrainType> createMap() {
-
+		
 		for (int xCoordinate = 0; xCoordinate < 8; xCoordinate++) {
 			for (int yCoordinate = 0; yCoordinate < 4; yCoordinate++) {
 				Point point = new Point(xCoordinate, yCoordinate);
 				map.put(point, TerrainType.GRASS);
 			}
 		}
+		
+		System.out.println(map.keySet());
+		
+		Object[] pointList = map.keySet().toArray();
 
 		for (int i = 0; i < 3; i++) {
-			placeMountain(point.randomPoint());
+			Object randomPoint = pointList[new Random().nextInt(pointList.length)];
+			placeMountain(randomPoint, pointList);
 		}
 
 		for (int i = 0; i < 4; i++) {
-			placeWater(point.randomPoint());
+			Object randomPoint = pointList[new Random().nextInt(pointList.length)];
+			placeWater(randomPoint, pointList);
 		}
 
 		return map;
 
 	}
-	
 
-	private void placeMountain(Point randomPoint) {
-		if (map.get(randomPoint).equals(TerrainType.GRASS)) {
-			map.replace(randomPoint, TerrainType.MOUNTAIN);
+	private void placeMountain(Object randomPoint, Object[] listOfPoints) {
+		Point rPoint = (Point) randomPoint;
+		if (map.containsKey(randomPoint) && map.get(randomPoint).equals(TerrainType.GRASS)) {
+			map.put(rPoint, TerrainType.MOUNTAIN);
 			return;
 		} else {
-			placeMountain(randomPoint.randomPoint());
+			Object anotherPoint = listOfPoints[new Random().nextInt(listOfPoints.length)];
+			placeMountain(anotherPoint, listOfPoints);
 		}
 	}
 
-	private void placeWater(Point randomPoint) {
-		if (map.get(randomPoint).equals(TerrainType.GRASS)) {
-			map.replace(randomPoint, TerrainType.WATER);
+	private void placeWater(Object randomPoint, Object[] listOfPoints) {
+		Point rPoint = (Point) randomPoint;
+		Object anotherPoint = listOfPoints[new Random().nextInt(listOfPoints.length)];
+		if (map.containsKey(randomPoint) && map.get(randomPoint).equals(TerrainType.GRASS)) {
+			map.put(rPoint, TerrainType.WATER);
 			if (hasIslands(map)) {
-				placeWater(randomPoint.randomPoint());
+				placeWater(anotherPoint, listOfPoints);
 			} else if (hasInvalidBorder(map)) {
-				placeWater(randomPoint.randomPoint());
+				placeWater(anotherPoint, listOfPoints);
 			} else
 				return;
 		} else {
-			placeWater(randomPoint.randomPoint());
+			placeWater(anotherPoint, listOfPoints);
 		}
 	}
-	
+
 	private boolean hasIslands(HashMap<Point, TerrainType> map) {
-		 
+
 		return false;
 	}
 
@@ -74,7 +89,7 @@ public class MapGenerator {
 					}
 				}
 			}
-			
+
 			count = 0;
 			for (int i = 0; i < 8; i++) {
 				if (point.getX() == i && point.getY() == 3 && map.get(point).equals(TerrainType.WATER)) {
@@ -84,7 +99,7 @@ public class MapGenerator {
 					}
 				}
 			}
-			
+
 			count = 0;
 			for (int i = 0; i < 4; i++) {
 				if (point.getX() == 0 && point.getY() == i && map.get(point).equals(TerrainType.WATER)) {
@@ -94,7 +109,7 @@ public class MapGenerator {
 					}
 				}
 			}
-			
+
 			count = 0;
 			for (int i = 0; i < 4; i++) {
 				if (point.getX() == 7 && point.getY() == i && map.get(point).equals(TerrainType.WATER)) {

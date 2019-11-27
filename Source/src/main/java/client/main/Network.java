@@ -6,7 +6,9 @@ import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,6 +19,8 @@ import MessagesBase.HalfMapNode;
 import MessagesBase.PlayerRegistration;
 import MessagesBase.ResponseEnvelope;
 import MessagesBase.UniquePlayerIdentifier;
+import MessagesGameState.EPlayerGameState;
+import MessagesGameState.GameState;
 import map.MapGenerator;
 import map.Point;
 import map.TerrainType;
@@ -26,16 +30,30 @@ public class Network {
 
 	private PlayerRegistration playerReg;
 	private UniquePlayerIdentifier uniqueID = new UniquePlayerIdentifier();
+//	private WebClient baseWebClient;
 	private final Logger log = LoggerFactory.getLogger(Network.class);
 
 	private MapGenerator mapGenerator = new MapGenerator();
+	
+//	public Network(WebClient webclient) {
+//		this.baseWebClient = webclient;
+//	}
 
-	public UniquePlayerIdentifier registerPlayer(WebClient baseWebClient, String gameId) {
+	public UniquePlayerIdentifier registerPlayer(String serverBaseUrl, String gameId) {
 		playerReg = new PlayerRegistration("Florian", "Hajas", "1207533");
+		
+		// template webclient configuration, will be reused/customized for each
+		// individual endpoint
+		// TIP: create it once in the CTOR of your network class and subsequently use it
+		// in each communication method
+		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses
+																							// XML
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
 
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameId + "/players")
-				.body(BodyInserters.fromObject(playerReg)) // specify the data which is set to the server
-				.retrieve().bodyToMono(ResponseEnvelope.class); // specify the object returned by the server
+				.body(BodyInserters.fromObject(playerReg))
+				.retrieve().bodyToMono(ResponseEnvelope.class);
 
 		// WebClient support asynchronous message exchange, in SE1 we use a synchronous
 		// one for the sake of simplicity. So calling block is fine.
@@ -52,8 +70,7 @@ public class Network {
 		return uniqueID;
 	}
 
-	public void postMap(WebClient baseWebClient, String gameID) {
-		HalfMap halfmap = new HalfMap();
+	public void postMap(String serverBaseUrl, String gameID, UniquePlayerIdentifier playerId) {
 		Collection<HalfMapNode> nodes = new HashSet<HalfMapNode>();
 
 		HashMap<Point, TerrainType> map = mapGenerator.createMap();
@@ -73,8 +90,13 @@ public class Network {
 			}
 		});
 
-		HalfMapNode halfmapNode = new HalfMapNode();
-
+		HalfMap halfmap = new HalfMap(playerId, nodes);
+		
+		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses
+																							// XML
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
+		
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameID + "halfmaps")
 				.body(BodyInserters.fromObject(halfmap)).retrieve().bodyToMono(ResponseEnvelope.class);
 
@@ -87,5 +109,7 @@ public class Network {
 		}
 
 	}
+	
+
 
 }
