@@ -1,0 +1,91 @@
+def urlFile = { url, name ->
+    File file = new File("$buildDir/download/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
+    }
+    files(file.absolutePath)
+}
+
+buildscript {
+ 	ext {
+        springBootVersion = '2.1.6.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+//ensures that the res folder (with the logback config) is recognized correctly
+sourceSets {
+    main {
+        resources {
+            srcDirs "res"
+        }
+    }
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+dependencies {
+
+	// you will need at least gradle 5 to get this working as we are using Java 11, this project and its gradle wrapper is configured accordingly
+
+	// spring boot
+	// note the latest spring boot version is required as it added support for Java 11
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
+
+    //java 11 removed java EE components, so we need to get the jaxb reference implementation for marshalling
+    compile("com.sun.xml.bind:jaxb-impl:2.3.1")
+    compile("javax.xml.bind:jaxb-api:2.3.1")
+    compile("com.sun.istack:istack-commons-runtime:3.0.8")
+    
+    // valiation commands on jaxb entities
+    compile "javax.validation:validation-api:2.0.1.Final"
+    compile "org.hibernate:hibernate-validator:6.0.17.Final"
+    compile "org.hibernate:hibernate-validator-annotation-processor:6.0.17.Final"
+    compile "javax.el:javax.el-api:3.0.0"
+    compile "org.glassfish:javax.el:3.0.0"
+    
+    // Use JUnit test framework, we support the old 4 and the new 5. The latter is recommended.
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.hamcrest:hamcrest:2.1'
+    
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.0'
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.4.0' //for data driven tests
+    
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.0'
+    testRuntime 'org.junit.vintage:junit-vintage-engine:5.4.0'
+    
+    // Use LogBack with the slf facade
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.25'
+    compile group: 'ch.qos.logback', name:'logback-classic', version: '1.2.3'
+    compile group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
+
+    // Network Messages, ensure that you always use the ones suitable for the current semester
+    // based on this jar file also a range of reference implementations for various marshalling libraries will be provided
+    // as Java 9 and later removed such implementations when removing Java EE
+    compile urlFile('https://homepage.univie.ac.at/kristof.boehmer/SE1/Network_Library/Jar/1.1.0.jar', 'swe_messages_1.1.0_WS2019')
+}
