@@ -9,23 +9,24 @@ public class MapGenerator {
 
 	private HashMap<Point, TerrainType> map;
 	private Point point;
-	
+
 	public MapGenerator() {
 		this.point = new Point();
 		this.map = new HashMap<Point, TerrainType>();
 	}
 
 	public HashMap<Point, TerrainType> createMap() {
-		
+		boolean fortPresent = false;
+
 		for (int xCoordinate = 0; xCoordinate < 8; xCoordinate++) {
 			for (int yCoordinate = 0; yCoordinate < 4; yCoordinate++) {
-				Point point = new Point(xCoordinate, yCoordinate);
+				Point point = new Point(xCoordinate, yCoordinate, fortPresent);
 				map.put(point, TerrainType.GRASS);
 			}
 		}
-		
-		System.out.println(map.keySet());
-		
+
+//		System.out.println(map.keySet());
+
 		Object[] pointList = map.keySet().toArray();
 
 		for (int i = 0; i < 3; i++) {
@@ -38,8 +39,24 @@ public class MapGenerator {
 			placeWater(randomPoint, pointList);
 		}
 
+		placeFort(pointList);
+
 		return map;
 
+	}
+
+	private void placeFort(Object[] listOfPoints) {
+		int counter = 0;
+		Point startPoint = (Point) listOfPoints[counter];
+		System.out.println(startPoint.getX() + startPoint.getY());
+		for (int i = 0; i < 32; i++) {
+			if (map.get(startPoint).equals(TerrainType.GRASS)) {
+				startPoint.setFortPresent(true);
+				map.put(startPoint, TerrainType.GRASS);
+				return;
+			}
+			startPoint = (Point) listOfPoints[++counter];
+		}
 	}
 
 	private void placeMountain(Object randomPoint, Object[] listOfPoints) {

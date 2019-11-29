@@ -19,8 +19,6 @@ import reactor.core.publisher.Mono;
 
 public class MainClient {
 
-	// ADDITONAL TIPS ON THIS MATTER ARE GIVEN THROUGHOUT THE TUTORIAL SESSION!
-
 	/*
 	 * Below you can find an example how to use both required HTTP operations i.e.,
 	 * POST and GET to communicate with the server.
@@ -78,8 +76,6 @@ public class MainClient {
 
 		Network controller = new Network();
 
-
-
 		UniquePlayerIdentifier uniqueID = controller.registerPlayer(serverBaseUrl, gameId);
 		String uniquePlayerID = uniqueID.getUniquePlayerID();
 
@@ -111,7 +107,7 @@ public class MainClient {
 		 * both clients "independently" from each other.
 		 */
 	}
-	
+
 	/*
 	 * This example method shall show you how to create a get request. Here, it
 	 * shows you how to use a GET request to request the state of a game. You can
@@ -121,10 +117,11 @@ public class MainClient {
 	 * (i.e., we strongly advice NOT to use the client to create new games using the
 	 * game new endpoint)
 	 */
-	public static GameState getState(String baseUrl, String gameId, String playerId, UniquePlayerIdentifier uniqueId) throws Exception {
+	public static GameState getState(String baseUrl, String gameId, String playerId, UniquePlayerIdentifier uniqueId)
+			throws Exception {
 
 		GameState state = new GameState();
-		
+
 		// TIP: Use a global instance of the base webclient throughout each
 		// communication
 		// you can init it once in the CTOR and use it in each of the network
@@ -144,30 +141,23 @@ public class MainClient {
 		// WebClient support asynchronous message exchange, in SE1 we use a synchronous
 		// one for the sake of simplicity. So calling block is fine.
 		ResponseEnvelope<GameState> requestResult = webAccess.block();
-		
+
 		Network controller = new Network();
 
-		// always check for errors, and if some are reported at least print them to the
-		// console
-		// so that you become aware of them during debugging! The provided server gives
-		// you very helpful error messages.
 		if (requestResult.getState() == ERequestState.Error) {
 			System.out.println("Client error, errormessage:" + requestResult.getExceptionMessage());
 		} else {
 			state = requestResult.getData().get();
 			System.out.println("Client gameStateID: " + state.getGameStateId() + ", PlayerInformation"
 					+ state.getPlayers().toString());
-			
-			if(state.getPlayers().iterator().next().getState().equals(EPlayerGameState.ShouldActNext)) {
+			if (state.getPlayers().iterator().next().getState().equals(EPlayerGameState.ShouldActNext)) {
 				controller.postMap(baseUrl, gameId, uniqueId);
 			} else {
 				System.out.println("NOT my turn!");
 				Thread.sleep(400);
-				controller.postMap(baseUrl, gameId, uniqueId);
 			}
 		}
 		return state;
 	}
-
 
 }

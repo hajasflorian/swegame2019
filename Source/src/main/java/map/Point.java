@@ -7,25 +7,18 @@ public class Point {
 	
 	private int x;
 	private int y;
+	private boolean fortPresent;
 	
-	public Point(int x, int y) {
+	public Point(int x, int y, boolean fortPresent) {
 		this.x = x;
 		this.y = y;
+		this.fortPresent=fortPresent;
 	}
 	
 	public Point() {
-	}
-
-
-	public Point randomPoint() {
-		int randomX = new Random().nextInt(8);
-		int randomY = new Random().nextInt(4);
-		
-		return new Point(randomX, randomY);
-	}
-	
-	public Point getPoint(int x, int y) {
-		return new Point(x,y);
+		x=0;
+		y=0;
+		fortPresent = false;
 	}
 	
 	public int getX() {
@@ -34,6 +27,7 @@ public class Point {
 	public void setX(int x) {
 		this.x = x;
 	}
+	
 	public int getY() {
 		return y;
 	}
@@ -41,5 +35,11 @@ public class Point {
 		this.y = y;
 	}
 	
+	public boolean getFortPresent() {
+		return fortPresent;
+	}
 	
+	public void setFortPresent(boolean fortPresent) {
+		this.fortPresent = fortPresent;
+	}
 }

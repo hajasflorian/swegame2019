@@ -77,7 +77,7 @@ public class Network {
 		map.forEach((k, v) -> {
 			switch (v) {
 			case GRASS:
-				nodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Grass));
+				nodes.add(new HalfMapNode(k.getX(), k.getY(), k.getFortPresent(), ETerrain.Grass));
 				break;
 			case WATER:
 				nodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Water));
@@ -97,7 +97,7 @@ public class Network {
 																							// XML
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
 		
-		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameID + "halfmaps")
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameID + "/halfmaps")
 				.body(BodyInserters.fromObject(halfmap)).retrieve().bodyToMono(ResponseEnvelope.class);
 
 		ResponseEnvelope<ERequestState> resultHalfMap = webAccess.block();
