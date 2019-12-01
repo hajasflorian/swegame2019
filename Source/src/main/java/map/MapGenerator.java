@@ -1,10 +1,10 @@
 package map;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 
 public class MapGenerator {
@@ -28,19 +28,24 @@ public class MapGenerator {
 				}
 			}
 
-			Object[] pointList = map.keySet().toArray();
+			Set<Point> pointList = map.keySet();
 
 			for (int i = 0; i < 3; i++) {
-				Object randomPoint = randomPoint(pointList);
+				Point randomPoint = randomPoint(pointList);
 				placeMountain(randomPoint, pointList);
 			}
 
 			for (int i = 0; i < 4; i++) {
-				Object randomPoint = randomPoint(pointList);
+				Point randomPoint = randomPoint(pointList);
 				placeWater(randomPoint, pointList);
 			}
+			
+			if(isMapValid(map)) {
+				placeFort(pointList);
+			} else {
+				createMap();
+			}
 
-			placeFort(pointList);
 		} catch (StackOverflowError e) {
 			createMap();
 		}
@@ -53,28 +58,29 @@ public class MapGenerator {
 
 	}
 
-	private void placeMountain(Object randomPoint, Object[] listOfPoints) {
-		point = (Point) randomPoint;
+	private boolean isMapValid(LinkedHashMap<Point, TerrainType> map) {
+		if (hasIslands(map)) {
+			return false;
+		} else if(hasInvalidBorder(map)) {
+			return false;
+		}
+		return true;
+	}
+
+	private void placeMountain(Point randomPoint, Set<Point> listOfPoints) {
+		Point anotherPoint = randomPoint(listOfPoints);
 		if (map.containsKey(randomPoint) && map.get(randomPoint).equals(TerrainType.GRASS)) {
-			map.put(point, TerrainType.MOUNTAIN);
+			map.put(randomPoint, TerrainType.MOUNTAIN);
 			return;
 		} else {
-			Object anotherPoint = listOfPoints[new Random().nextInt(listOfPoints.length)];
 			placeMountain(anotherPoint, listOfPoints);
 		}
 	}
 
-	private void placeWater(Object randomPoint, Object[] listOfPoints) {
-		point = (Point) randomPoint;
-		Object anotherPoint = randomPoint(listOfPoints);
+	private void placeWater(Point randomPoint, Set<Point> listOfPoints) {
+		Point anotherPoint = randomPoint(listOfPoints);
 		if (map.containsKey(randomPoint) && map.get(randomPoint).equals(TerrainType.GRASS)) {
-			map.put(point, TerrainType.WATER);
-			if (hasIslands(map)) {
-				placeWater(anotherPoint, listOfPoints);
-			} else 
-			if (hasInvalidBorder(map)) {
-				placeWater(anotherPoint, listOfPoints);
-			} else
+			map.put(randomPoint, TerrainType.WATER);
 				return;
 		} else {
 			placeWater(anotherPoint, listOfPoints);
@@ -182,7 +188,7 @@ public class MapGenerator {
 		return false;
 	}
 
-	private void placeFort(Object[] listOfPoints) {
+	private void placeFort(Set<Point> listOfPoints) {
 		point = (Point) randomPoint(listOfPoints);
 		if (map.get(point).equals(TerrainType.GRASS)) {
 			point.setFortPresent(true);
@@ -195,8 +201,12 @@ public class MapGenerator {
 		}
 	}
 
-	private Object randomPoint(Object[] listOfPoints) {
-		return listOfPoints[new Random().nextInt(listOfPoints.length)];
+	private Point randomPoint(Set<Point> pointList) {
+		int randomNumber = (int) (Math.random()*(((pointList.size()-1)-0)+1))+0;
+		
+		List<Point> mainList = new ArrayList<Point>();
+		mainList.addAll(pointList);
+		return mainList.get(randomNumber);
 	}
 
 }

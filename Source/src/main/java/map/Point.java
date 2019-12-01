@@ -1,8 +1,5 @@
 package map;
 
-import java.util.Random;
-
-
 public class Point {
 	
 	private int x;
