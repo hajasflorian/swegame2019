@@ -19,13 +19,7 @@ import reactor.core.publisher.Mono;
 public class Network {
  
 	UniquePlayerIdentifier uniqueID = new UniquePlayerIdentifier();
-//	private WebClient baseWebClient;
 	private final Logger log = LoggerFactory.getLogger(Network.class);
-
-	
-//	public Network(WebClient webclient) {
-//		this.baseWebClient = webclient;
-//	}
 
 	public UniquePlayerIdentifier registerPlayer(String serverBaseUrl, String gameId, PlayerRegistration playerRegistration) {
 		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")

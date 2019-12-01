@@ -27,8 +27,6 @@ public class ClientLogic {
 		UniquePlayerIdentifier uniqueIdentifier = network.registerPlayer(baseUrl, gameId, pRegistration);
 		String playerId = uniqueIdentifier.getUniquePlayerID();
 		
-		
-		HalfMap hafmap = converter.convertMap(playerId);
 		if (!(playerId.isEmpty())) {
 
 			while (true) {
@@ -46,6 +44,7 @@ public class ClientLogic {
 						EPlayerGameState playerState = getPlayerState(state, playerId);
 						if (playerState.equals(EPlayerGameState.ShouldActNext)) {
 							log.info("My turn: I post my Map");
+							HalfMap hafmap = converter.convertMap(playerId);
 							network.postMap(baseUrl, gameId, hafmap);
 							return;
 						}
