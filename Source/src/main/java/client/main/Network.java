@@ -41,26 +41,18 @@ public class Network {
 
 	public UniquePlayerIdentifier registerPlayer(String serverBaseUrl, String gameId) {
 		playerReg = new PlayerRegistration("Florian", "Hajas", "1207533");
-		
-		// template webclient configuration, will be reused/customized for each
-		// individual endpoint
-		// TIP: create it once in the CTOR of your network class and subsequently use it
-		// in each communication method
+
 		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses
-																							// XML
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses XML
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
 
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameId + "/players")
 				.body(BodyInserters.fromObject(playerReg))
 				.retrieve().bodyToMono(ResponseEnvelope.class);
 
-		// WebClient support asynchronous message exchange, in SE1 we use a synchronous
-		// one for the sake of simplicity. So calling block is fine.
 		ResponseEnvelope<UniquePlayerIdentifier> resultReg = webAccess.block();
 
 		if (resultReg.getState() == ERequestState.Error) {
-			// open http://swe.wst.univie.ac.at:18235/games in your browser to create a new
 			log.error("Client error, errormessage" + resultReg.getExceptionMessage());
 		} else {
 			uniqueID = resultReg.getData().get();
@@ -69,28 +61,45 @@ public class Network {
 
 		return uniqueID;
 	}
+	
+	public static ResponseEnvelope<GameState> getState(String baseUrl, String gameId, String playerId,
+			UniquePlayerIdentifier uniqueId) throws Exception {
+
+		GameState state = new GameState();
+
+		WebClient baseWebClient = WebClient.builder().baseUrl(baseUrl + "/games")
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) 
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
+
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.GET)
+				.uri("/" + gameId + "/states/" + playerId).retrieve().bodyToMono(ResponseEnvelope.class); 
+
+		ResponseEnvelope<GameState> requestResult = webAccess.block();
+
+		return requestResult;
+	}
 
 	public void postMap(String serverBaseUrl, String gameID, UniquePlayerIdentifier playerId) {
-		Collection<HalfMapNode> nodes = new HashSet<HalfMapNode>();
-
+		Collection<HalfMapNode> halfMapNodes = new HashSet<HalfMapNode>();
 		HashMap<Point, TerrainType> map = mapGenerator.createMap();
+		
 		map.forEach((k, v) -> {
 			switch (v) {
 			case GRASS:
-				nodes.add(new HalfMapNode(k.getX(), k.getY(), k.getFortPresent(), ETerrain.Grass));
+				halfMapNodes.add(new HalfMapNode(k.getX(), k.getY(), k.getFortPresent(), ETerrain.Grass));
 				break;
 			case WATER:
-				nodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Water));
+				halfMapNodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Water));
 				break;
 			case MOUNTAIN:
-				nodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Mountain));
+				halfMapNodes.add(new HalfMapNode(k.getX(), k.getY(), false, ETerrain.Mountain));
 				break;
 			default:
 				break;
 			}
 		});
-
-		HalfMap halfmap = new HalfMap(playerId, nodes);
+		
+		HalfMap halfmap = new HalfMap(playerId, halfMapNodes);
 		
 		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
 				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses
@@ -103,7 +112,7 @@ public class Network {
 		ResponseEnvelope<ERequestState> resultHalfMap = webAccess.block();
 
 		if (resultHalfMap.getState() == ERequestState.Error) {
-			log.error("Client error, errormessage" + resultHalfMap.getExceptionMessage());
+			log.error("Client error, errormessage: " + resultHalfMap.getExceptionMessage());
 		} else {
 			log.info("HalfMap request was confirmed successfully");
 		}
