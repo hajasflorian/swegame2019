@@ -69,9 +69,9 @@ public class MapGenerator {
 		Object anotherPoint = randomPoint(listOfPoints);
 		if (map.containsKey(randomPoint) && map.get(randomPoint).equals(TerrainType.GRASS)) {
 			map.put(point, TerrainType.WATER);
-//			if (hasIslands(map)) {
-//				placeWater(anotherPoint, listOfPoints);
-//			} else 
+			if (hasIslands(map)) {
+				placeWater(anotherPoint, listOfPoints);
+			} else 
 			if (hasInvalidBorder(map)) {
 				placeWater(anotherPoint, listOfPoints);
 			} else
@@ -113,7 +113,7 @@ public class MapGenerator {
 			for (int y = 0; y < halfMapArray[0].length; y++) {
 				if (halfMapArray_copy[x][y] == "GRASS") {
 					count++;
-					merge(x, y, halfMapArray_copy);
+					checkIsland(x, y, halfMapArray_copy);
 				}
 
 			}
@@ -125,16 +125,16 @@ public class MapGenerator {
 
 	}
 
-	private void merge(int x, int y, String[][] halfMapArray) {
+	private void checkIsland(int x, int y, String[][] halfMapArray) {
 		if (x < 0 || x == halfMapArray.length || y < 0 || y == halfMapArray[x].length || halfMapArray[x][y] == "WATER"
 				|| halfMapArray[x][y] == "MOUNTAIN")
 			return;
 
 		halfMapArray[x][y] = "WATER";
-		merge(x + 1, y, halfMapArray);
-		merge(x - 1, y, halfMapArray);
-		merge(x, y + 1, halfMapArray);
-		merge(x, y - 1, halfMapArray);
+		checkIsland(x + 1, y, halfMapArray);
+		checkIsland(x - 1, y, halfMapArray);
+		checkIsland(x, y + 1, halfMapArray);
+		checkIsland(x, y - 1, halfMapArray);
 	}
 
 	private boolean hasInvalidBorder(HashMap<Point, TerrainType> map) {
@@ -144,8 +144,9 @@ public class MapGenerator {
 		int countRightSide = 0;
 
 		Set<Point> points = map.keySet();
+		Iterator<Point> it = points.iterator();
 
-		for (Iterator<Point> it = points.iterator(); it.hasNext();) {
+		while(it.hasNext()) {
 			point = it.next();
 			for (int i = 0; i < 8; i++) {
 				if (point.getX() == i && point.getY() == 0 && map.get(point).equals(TerrainType.WATER)) {

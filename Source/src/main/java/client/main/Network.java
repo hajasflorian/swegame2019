@@ -62,7 +62,7 @@ public class Network {
 		return uniqueID;
 	}
 	
-	public static ResponseEnvelope<GameState> getState(String baseUrl, String gameId, String playerId,
+	public ResponseEnvelope<GameState> getState(String baseUrl, String gameId, String playerId,
 			UniquePlayerIdentifier uniqueId) throws Exception {
 
 		GameState state = new GameState();

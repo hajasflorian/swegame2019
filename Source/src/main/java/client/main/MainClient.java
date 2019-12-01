@@ -15,6 +15,7 @@ import MessagesBase.UniqueGameIdentifier;
 import MessagesBase.UniquePlayerIdentifier;
 import MessagesGameState.EPlayerGameState;
 import MessagesGameState.GameState;
+import MessagesGameState.PlayerState;
 import reactor.core.publisher.Mono;
 
 public class MainClient {
@@ -46,6 +47,7 @@ public class MainClient {
 						GameState state = response.getData().get();
 						log.info("Client gameStateID: " + state.getGameStateId() + ", PlayerInformation"
 								+ state.getPlayers().toString());
+						EPlayerGameState playerState = getPlayerState(state, uniquePlayerID);
 						if (state.getPlayers().iterator().next().getState().equals(EPlayerGameState.ShouldActNext)) {
 							log.info("My turn: I post my Map");
 							controller.postMap(serverBaseUrl, gameId, uniqueID);
@@ -60,6 +62,15 @@ public class MainClient {
 				}
 			}
 		}
+	}
+	
+	public static EPlayerGameState getPlayerState(GameState state, String uniquePlayerID) {
+		for (PlayerState player : state.getPlayers()) {
+			if(player.getUniquePlayerID().equals(uniquePlayerID)) {
+				return player.getState();
+			}
+		}
+		return null;
 	}
 
 
