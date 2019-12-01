@@ -23,7 +23,7 @@ public class MainClient {
 	private final static Logger log = LoggerFactory.getLogger(MainClient.class);
 
 	public static void main(String[] args) {
-		
+
 		String serverBaseUrl = args[1];
 		String gameId = args[2];
 
@@ -38,7 +38,8 @@ public class MainClient {
 				try {
 					// wait 0,4 seconds
 					Thread.sleep(400);
-					ResponseEnvelope<GameState> response = controller.getState(serverBaseUrl, gameId, uniquePlayerID, uniqueID);
+					ResponseEnvelope<GameState> response = controller.getState(serverBaseUrl, gameId, uniquePlayerID,
+							uniqueID);
 
 					if (response.getState() == ERequestState.Error) {
 						log.error("Client error, errormessage:" + response.getExceptionMessage());
@@ -48,12 +49,10 @@ public class MainClient {
 						log.info("Client gameStateID: " + state.getGameStateId() + ", PlayerInformation"
 								+ state.getPlayers().toString());
 						EPlayerGameState playerState = getPlayerState(state, uniquePlayerID);
-						if (state.getPlayers().iterator().next().getState().equals(EPlayerGameState.ShouldActNext)) {
-							log.info("My turn: I post my Map");
-							controller.postMap(serverBaseUrl, gameId, uniqueID);
-							return;
-						} else {
-							log.info("NOT my turn!");
+						if (playerState.equals(EPlayerGameState.ShouldActNext)) {
+								log.info("My turn: I post my Map");
+								controller.postMap(serverBaseUrl, gameId, uniqueID);
+								return;
 						}
 					}
 
@@ -63,17 +62,14 @@ public class MainClient {
 			}
 		}
 	}
-	
+
 	public static EPlayerGameState getPlayerState(GameState state, String uniquePlayerID) {
 		for (PlayerState player : state.getPlayers()) {
-			if(player.getUniquePlayerID().equals(uniquePlayerID)) {
+			if (player.getUniquePlayerID().equals(uniquePlayerID)) {
 				return player.getState();
 			}
 		}
 		return null;
 	}
-
-
-
 
 }

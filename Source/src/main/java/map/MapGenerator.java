@@ -83,21 +83,14 @@ public class MapGenerator {
 
 	private boolean hasIslands(HashMap<Point, TerrainType> map) {
 
-		// map to 2D array
 		String[][] halfMapArray = new String[8][4];
 		Set<Entry<Point, TerrainType>> entrySet = map.entrySet();
-		Iterator<Entry<Point, TerrainType>> entrySetIterator = entrySet.iterator();
 
-		while (entrySetIterator.hasNext()) {
-
-			Entry<Point, TerrainType> mapping = entrySetIterator.next();
-
-			point = (Point) mapping.getKey();
-
-			halfMapArray[point.getX()][point.getY()] = mapping.getValue().toString();
-			System.out.println(point.getX() + "," + point.getY() + " is: " + mapping.getValue());
+		// hashMap to 2dArray
+		for (Entry<Point, TerrainType> pointTerrainTypeEntry : entrySet) {
+			halfMapArray[pointTerrainTypeEntry.getKey().getX()][pointTerrainTypeEntry.getKey().getY()] = pointTerrainTypeEntry.getValue().toString();
 		}
-
+		
 		// copy 2D array
 		String[][] halfMapArray_copy = new String[8][4];
 
@@ -111,7 +104,7 @@ public class MapGenerator {
 
 		for (int x = 0; x < halfMapArray.length; x++) {
 			for (int y = 0; y < halfMapArray[0].length; y++) {
-				if (halfMapArray_copy[x][y] == "GRASS") {
+				if (halfMapArray_copy[x][y].equals("GRASS")) {
 					count++;
 					checkIsland(x, y, halfMapArray_copy);
 				}
@@ -122,7 +115,6 @@ public class MapGenerator {
 			return true;
 		else
 			return false;
-
 	}
 
 	private void checkIsland(int x, int y, String[][] halfMapArray) {
@@ -143,24 +135,21 @@ public class MapGenerator {
 		int countLeftSide = 0;
 		int countRightSide = 0;
 
-		Set<Point> points = map.keySet();
-		Iterator<Point> it = points.iterator();
-
-		while(it.hasNext()) {
-			point = it.next();
+		Set<Entry<Point,TerrainType>> points = map.entrySet();
+		
+		for(Entry<Point, TerrainType> point: points) {
 			for (int i = 0; i < 8; i++) {
-				if (point.getX() == i && point.getY() == 0 && map.get(point).equals(TerrainType.WATER)) {
+				if (point.getKey().getX() == i && point.getKey().getY() == 0 && point.getValue().equals(TerrainType.WATER)) {
 					countUpSide++;
 					if (countUpSide > 3) {
 						return true;
 					}
 				}
 			}
-			System.out.println("Border check up side: " + countUpSide);
 
 //			count = 0;
 			for (int i = 0; i < 8; i++) {
-				if (point.getX() == i && point.getY() == 3 && map.get(point).equals(TerrainType.WATER)) {
+				if (point.getKey().getX() == i && point.getKey().getY() == 3 && point.getValue().equals(TerrainType.WATER)) {
 					countDownSide++;
 					if (countDownSide > 3) {
 						return true;
@@ -168,11 +157,9 @@ public class MapGenerator {
 				}
 			}
 
-			System.out.println("Border check down side: " + countDownSide);
-
 //			count = 0;
 			for (int i = 0; i < 4; i++) {
-				if (point.getX() == 0 && point.getY() == i && map.get(point).equals(TerrainType.WATER)) {
+				if (point.getKey().getX() == 0 && point.getKey().getY() == i && point.getValue().equals(TerrainType.WATER)) {
 					countLeftSide++;
 					if (countLeftSide > 1) {
 						return true;
@@ -180,19 +167,16 @@ public class MapGenerator {
 				}
 			}
 
-			System.out.println("Border check left side: " + countLeftSide);
-
 //			count = 0;
 			for (int i = 0; i < 4; i++) {
-				if (point.getX() == 7 && point.getY() == i && map.get(point).equals(TerrainType.WATER)) {
+				if (point.getKey().getX() == 7 && point.getKey().getY() == i && point.getValue().equals(TerrainType.WATER)) {
 					countRightSide++;
 					if (countRightSide > 1) {
 						return true;
 					}
 				}
 			}
-
-			System.out.println("Border check right side: " + countRightSide);
+			
 		}
 
 		return false;
