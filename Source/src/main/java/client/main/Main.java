@@ -1,6 +1,7 @@
 package client.main;
 
-import client.ClientApplication;
+import client.ClientLogic;
+import client.PlayerGameInformation;
 
 public class Main {
 
@@ -9,8 +10,10 @@ public class Main {
 		String serverBaseUrl = args[1];
 		String gameId = args[2];
 		
-		ClientApplication client = new ClientApplication(serverBaseUrl, gameId);
-		client.start();
+		PlayerGameInformation playerGameInformation = new PlayerGameInformation();
+		
+		ClientLogic clientLogic = new ClientLogic(playerGameInformation);
+		clientLogic.registerToGame(serverBaseUrl, gameId);
 
 	}
 

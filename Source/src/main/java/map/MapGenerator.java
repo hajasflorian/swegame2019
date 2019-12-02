@@ -18,6 +18,7 @@ public class MapGenerator {
 	}
 
 	public LinkedHashMap<Point, TerrainType> createMap() {
+		map.clear();
 		try {
 			boolean fortPresent = false;
 
@@ -30,12 +31,12 @@ public class MapGenerator {
 
 			Set<Point> pointList = map.keySet();
 
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				Point randomPoint = randomPoint(pointList);
 				placeMountain(randomPoint, pointList);
 			}
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 5; i++) {
 				Point randomPoint = randomPoint(pointList);
 				placeWater(randomPoint, pointList);
 			}
@@ -92,7 +93,7 @@ public class MapGenerator {
 		String[][] halfMapArray = new String[8][4];
 		Set<Entry<Point, TerrainType>> entrySet = map.entrySet();
 
-		// hashMap to 2dArray
+		// hashMap to 2D array
 		for (Entry<Point, TerrainType> pointTerrainTypeEntry : entrySet) {
 			halfMapArray[pointTerrainTypeEntry.getKey().getX()][pointTerrainTypeEntry.getKey().getY()] = pointTerrainTypeEntry.getValue().toString();
 		}
@@ -110,7 +111,7 @@ public class MapGenerator {
 
 		for (int x = 0; x < halfMapArray.length; x++) {
 			for (int y = 0; y < halfMapArray[0].length; y++) {
-				if (halfMapArray_copy[x][y].equals("GRASS")) {
+				if (halfMapArray_copy[x][y].equals("GRASS") || halfMapArray_copy[x][y].equals("MOUNTAIN")) {
 					count++;
 					checkIsland(x, y, halfMapArray_copy);
 				}
@@ -124,8 +125,7 @@ public class MapGenerator {
 	}
 
 	private void checkIsland(int x, int y, String[][] halfMapArray) {
-		if (x < 0 || x == halfMapArray.length || y < 0 || y == halfMapArray[x].length || halfMapArray[x][y] == "WATER"
-				|| halfMapArray[x][y] == "MOUNTAIN")
+		if (x < 0 || x == halfMapArray.length || y < 0 || y == halfMapArray[x].length || halfMapArray[x][y] == "WATER")
 			return;
 
 		halfMapArray[x][y] = "WATER";
