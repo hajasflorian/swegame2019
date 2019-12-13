@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import MessagesBase.ERequestState;
 import MessagesBase.HalfMap;
+import MessagesBase.PlayerMove;
 import MessagesBase.PlayerRegistration;
 import MessagesBase.ResponseEnvelope;
 import MessagesBase.UniquePlayerIdentifier;
@@ -65,7 +66,7 @@ public class Network {
 
 	}
 	
-	public ResponseEnvelope<ERequestState> postMove(String serverBaseUrl, String gameID, HalfMap halfmap) {
+	public ResponseEnvelope<ERequestState> postMove(String serverBaseUrl, String gameID, PlayerMove move) {
 
 		WebClient baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
 				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // the network protocol uses
@@ -73,7 +74,7 @@ public class Network {
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
 
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + gameID + "/moves")
-				.body(BodyInserters.fromObject(halfmap)).retrieve().bodyToMono(ResponseEnvelope.class);
+				.body(BodyInserters.fromObject(move)).retrieve().bodyToMono(ResponseEnvelope.class);
 
 		ResponseEnvelope<ERequestState> resultHalfMap = webAccess.block();
 

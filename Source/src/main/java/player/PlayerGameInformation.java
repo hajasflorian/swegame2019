@@ -1,8 +1,10 @@
 package player;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import ki.Graph;
 import map.Point;
 import map.TerrainType;
 
@@ -17,6 +19,9 @@ public class PlayerGameInformation {
 	private String playerId = null;
 	private String enemyId = null;
 	private boolean collectedTreasure = false;
+	private ArrayList<Point> possibleTreasurePositions = new ArrayList<Point>();
+	private ArrayList<Point> settledPositions = new ArrayList<Point>();
+	private Graph graph = new Graph();
 
 	private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
@@ -25,7 +30,7 @@ public class PlayerGameInformation {
 		changes.addPropertyChangeListener(l);
 	}
 
-	public Point getmyPosition() {
+	public Point getMyPosition() {
 		return myPosition;
 	}
 
@@ -112,6 +117,16 @@ public class PlayerGameInformation {
 
 	public void setCollectedTreasure(boolean collectedTreasure) {
 		this.collectedTreasure = collectedTreasure;
+	}
+	
+	public ArrayList<Point> getPossibleTreasurePositions() {
+		return possibleTreasurePositions;
+	}
+
+	public void setPossibleTreasurePositions(ArrayList<Point> possibleTreasurePositions) {
+		ArrayList<Point> before = this.possibleTreasurePositions;
+		this.possibleTreasurePositions = possibleTreasurePositions;
+		changes.firePropertyChange("PossibleTreasurePositions", before, possibleTreasurePositions);
 	}
 
 }

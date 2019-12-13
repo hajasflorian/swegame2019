@@ -11,12 +11,15 @@ import MessagesBase.ERequestState;
 import MessagesBase.ETerrain;
 import MessagesBase.HalfMap;
 import MessagesBase.HalfMapNode;
+import MessagesBase.PlayerMove;
 import MessagesBase.PlayerRegistration;
 import MessagesBase.ResponseEnvelope;
 import MessagesBase.UniquePlayerIdentifier;
+import MessagesGameState.EPlayerPositionState;
 import MessagesGameState.FullMap;
 import MessagesGameState.FullMapNode;
 import MessagesGameState.GameState;
+import exceptions.RegistrationException;
 import map.MapGenerator;
 import map.Point;
 import map.TerrainType;
@@ -30,15 +33,22 @@ public class Converter {
 
 	public UniquePlayerIdentifier convertRegistrationResponse(String baseUrl, String gameId,
 			PlayerRegistration pRegistration) {
-		ResponseEnvelope<UniquePlayerIdentifier> responseReg = network.registerPlayer(baseUrl, gameId, pRegistration);
-		UniquePlayerIdentifier uniqueIdentifier = responseReg.getData().get();
+		try {
+			ResponseEnvelope<UniquePlayerIdentifier> responseReg = network.registerPlayer(baseUrl, gameId,
+					pRegistration);
+			UniquePlayerIdentifier uniqueIdentifier = responseReg.getData().get();
 
-		if (responseReg.getState() == ERequestState.Error) {
-			log.error("Client error, errormessage" + responseReg.getExceptionMessage());
-		} else {
-			log.info("My Player ID:" + uniqueIdentifier.getUniquePlayerID());
+			if (responseReg.getState() == ERequestState.Error) {
+				throw new RegistrationException(responseReg.getExceptionMessage());
+
+			} else {
+				log.info("My Player ID:" + uniqueIdentifier.getUniquePlayerID());
+			}
+			return uniqueIdentifier;
+		} catch (RegistrationException e) {
+			log.error("Client error, errormessage" + e.getMessage());
 		}
-		return uniqueIdentifier;
+		return null;
 	}
 
 	public GameState convertPlayerStateResponse(String baseUrl, String gameId, String playerId) {
@@ -49,13 +59,17 @@ public class Converter {
 			state = response.getData().get();
 			if (response.getState() == ERequestState.Error) {
 				log.error("Client error, errormessage:" + response.getExceptionMessage());
+				
 			} else {
 				if (state.getMap().isPresent()) {
 					log.info("Client gameStateID: " + state.getGameStateId() + ", PlayerInformation:"
 							+ state.getPlayers().toString() + "MapInformation" + state.getMap().get());
 					FullMap fullmap = state.getMap().get();
-					for(FullMapNode nodes : fullmap.getMapNodes()) {
-						System.out.println(nodes.getX() + ", " + nodes.getY() + ", " + nodes.getTerrain());
+					for (FullMapNode nodes : fullmap.getMapNodes()) {
+						log.debug(nodes.getX() + ", " + nodes.getY() + ", " + nodes.getTerrain());
+						if (nodes.getPlayerPositionState().equals(EPlayerPositionState.MyPosition)) {
+							log.debug("My Position" + nodes.getX() + nodes.getY());
+						}
 					}
 				} else {
 					log.info("Client gameStateID: " + state.getGameStateId() + ", PlayerInformation:"
@@ -63,6 +77,7 @@ public class Converter {
 				}
 			}
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -101,6 +116,16 @@ public class Converter {
 
 		HalfMap halfmap = new HalfMap(playerId, halfMapNodes);
 		return halfmap;
+	}
+
+	public void convertPostMoveResponse(String baseUrl, String gameId, PlayerMove move) {
+		ResponseEnvelope<ERequestState> responseMove = network.postMove(baseUrl, gameId, move);
+
+		if (responseMove.getState() == ERequestState.Error) {
+			log.error("Client error, errormessage: " + responseMove.getExceptionMessage());
+		} else {
+			log.info("Move was done successfully.");
+		}
 	}
 
 }

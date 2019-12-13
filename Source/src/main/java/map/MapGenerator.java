@@ -51,15 +51,15 @@ public class MapGenerator {
 			createMap();
 		}
 
-		map.forEach((k, v) -> {
-			System.out.println(k.getX() + "," + k.getY() + ", fort: " + k.getFortPresent() + ", " + v);
-		});
+//		map.forEach((k, v) -> {
+//			System.out.println(k.getX() + "," + k.getY() + ", fort: " + k.getFortPresent() + ", " + v);
+//		});
 
 		return map;
 
 	}
 
-	private boolean isMapValid(LinkedHashMap<Point, TerrainType> map) {
+	protected boolean isMapValid(LinkedHashMap<Point, TerrainType> map) {
 		if (hasIslands(map)) {
 			return false;
 		} else if(hasInvalidBorder(map)) {
@@ -88,7 +88,7 @@ public class MapGenerator {
 		}
 	}
 
-	 boolean hasIslands(HashMap<Point, TerrainType> map) {
+	 protected boolean hasIslands(HashMap<Point, TerrainType> map) {
 
 		String[][] halfMapArray = new String[8][4];
 		Set<Entry<Point, TerrainType>> entrySet = map.entrySet();
@@ -135,7 +135,7 @@ public class MapGenerator {
 		checkIsland(x, y - 1, halfMapArray);
 	}
 
-	 boolean hasInvalidBorder(HashMap<Point, TerrainType> map) {
+	 protected boolean hasInvalidBorder(HashMap<Point, TerrainType> map) {
 		int countUpSide = 0;
 		int countDownSide = 0;
 		int countLeftSide = 0;
@@ -153,7 +153,6 @@ public class MapGenerator {
 				}
 			}
 
-//			count = 0;
 			for (int i = 0; i < 8; i++) {
 				if (point.getKey().getX() == i && point.getKey().getY() == 3 && point.getValue().equals(TerrainType.Water)) {
 					countDownSide++;
@@ -163,7 +162,6 @@ public class MapGenerator {
 				}
 			}
 
-//			count = 0;
 			for (int i = 0; i < 4; i++) {
 				if (point.getKey().getX() == 0 && point.getKey().getY() == i && point.getValue().equals(TerrainType.Water)) {
 					countLeftSide++;
@@ -173,7 +171,6 @@ public class MapGenerator {
 				}
 			}
 
-//			count = 0;
 			for (int i = 0; i < 4; i++) {
 				if (point.getKey().getX() == 7 && point.getKey().getY() == i && point.getValue().equals(TerrainType.Water)) {
 					countRightSide++;
@@ -188,12 +185,11 @@ public class MapGenerator {
 		return false;
 	}
 
-	private void placeFort(Set<Point> listOfPoints) {
+	protected void placeFort(Set<Point> listOfPoints) {
 		point = (Point) randomPoint(listOfPoints);
 		if (map.get(point).equals(TerrainType.Grass)) {
 			point.setFortPresent(true);
 			map.put(point, TerrainType.Grass);
-			System.out.println(point.getX() + " " + point.getY());
 			return;
 		} else {
 			placeFort(listOfPoints);
@@ -201,12 +197,28 @@ public class MapGenerator {
 		}
 	}
 
-	private Point randomPoint(Set<Point> pointList) {
+	protected Point randomPoint(Set<Point> pointList) {
 		int randomNumber = (int) (Math.random()*(((pointList.size()-1)-0)+1))+0;
 		
 		List<Point> mainList = new ArrayList<Point>();
 		mainList.addAll(pointList);
 		return mainList.get(randomNumber);
+	}
+	
+	public LinkedHashMap<Point, TerrainType> getMap() {
+		return map;
+	}
+
+	public void setMap(LinkedHashMap<Point, TerrainType> map) {
+		this.map = map;
+	}
+
+	public Point getPoint() {
+		return point;
+	}
+
+	public void setPoint(Point point) {
+		this.point = point;
 	}
 
 }

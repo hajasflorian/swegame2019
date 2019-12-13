@@ -6,22 +6,44 @@ import java.util.List;
 import java.util.Map;
 
 public class Node {
-    
-//    private String name;
      
     private List<Node> shortestPath = new LinkedList<>();
      
     private Integer distance = Integer.MAX_VALUE;
      
     Map<Node, Integer> adjacentNodes = new HashMap<>();
+    
+    private int MOVE_COST = 10;
+    
+    int x;
+	int y;
+    
+    public Node(int x, int y) {
+    	this.x=x;
+    	this.y=y;
+    }
  
     public void addDestination(Node destination, int distance) {
+    	
         adjacentNodes.put(destination, distance);
     }
+    
+    public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
   
-//    public Node(String name) {
-//        this.name = name;
-//    }
 
     public Integer getDistance() {
     	return distance;
@@ -29,14 +51,6 @@ public class Node {
 	public void setDistance(int i) {
 		this.distance = i;
 	}
-
-//	public String getName() {
-//		return name;
-//	}
-//
-//	public void setName(String name) {
-//		this.name = name;
-//	}
 
 	public List<Node> getShortestPath() {
 		return shortestPath;
@@ -52,6 +66,14 @@ public class Node {
 
 	public void setAdjacentNodes(Map<Node, Integer> adjacentNodes) {
 		this.adjacentNodes = adjacentNodes;
+	}
+
+	public int getMOVE_COST() {
+		return MOVE_COST;
+	}
+
+	public void setMOVE_COST(int mOVE_COST) {
+		this.MOVE_COST = mOVE_COST;
 	}
      
 }
