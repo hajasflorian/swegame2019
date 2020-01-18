@@ -1,0 +1,7 @@
+package exceptions;
+
+public class RegistrationException extends RuntimeException {
+	public RegistrationException(String msg) {
+		super(msg);
+	}
+}
