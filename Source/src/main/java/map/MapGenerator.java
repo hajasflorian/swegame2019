@@ -7,7 +7,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import exceptions.MapIsNotValidException;
+
 public class MapGenerator {
+
+	private final static Logger log = LoggerFactory.getLogger(MapGenerator.class);
 
 	private LinkedHashMap<Point, TerrainType> map;
 	private Point point;
@@ -41,9 +48,11 @@ public class MapGenerator {
 				placeWater(randomPoint, pointList);
 			}
 			
-			if(isMapValid(map)) {
+			try {
+				checkMapValidation(map);
 				placeFort(pointList);
-			} else {
+			} catch (MapIsNotValidException e) {
+				log.error(e.toString());
 				createMap();
 			}
 
@@ -51,21 +60,16 @@ public class MapGenerator {
 			createMap();
 		}
 
-//		map.forEach((k, v) -> {
-//			System.out.println(k.getX() + "," + k.getY() + ", fort: " + k.getFortPresent() + ", " + v);
-//		});
-
 		return map;
 
 	}
 
-	protected boolean isMapValid(LinkedHashMap<Point, TerrainType> map) {
+	protected void checkMapValidation(LinkedHashMap<Point, TerrainType> map) throws MapIsNotValidException {
 		if (hasIslands(map)) {
-			return false;
+			throw new MapIsNotValidException("Map has islands!");
 		} else if(hasInvalidBorder(map)) {
-			return false;
+			throw new MapIsNotValidException("Map has invalid border!");
 		}
-		return true;
 	}
 
 	private void placeMountain(Point randomPoint, Set<Point> listOfPoints) {
